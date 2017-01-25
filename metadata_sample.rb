@@ -9,6 +9,10 @@ secretfile = 'metadata.secret'
 api = MetadataAPI.new
 api.get_keys(secretfile)
 
+# Test authentication, optionally
+#
+api.test_auth()
+
 #Pass OCLC numbers to get a hash of the bib with marc tags as keys
 #
 recnum = '46394151'

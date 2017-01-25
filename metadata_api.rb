@@ -33,6 +33,20 @@ attr_reader :response
     end
     return @response
   end
+
+  def test_auth()
+    url = 'https://worldcat.org/bib/data/46394151?classificationScheme=LibraryOfCongress&holdingLibraryCode=MAIN'
+    status = make_request(url).code
+    if status == '200'
+      puts 'Authentication successful.'
+      return true
+    else
+      puts 'Test authentication failed. Wrong credentials or ' +
+           'worldcat service down?'
+      return false
+    end
+  end
+
 end
 
 class MetadataAPI
@@ -73,5 +87,10 @@ class MetadataAPI
     fields[field['tag']] = field
     end
     return fields
+  end
+  
+  def test_auth()
+    @session || create_session
+    @session.test_auth()
   end
 end

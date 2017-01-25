@@ -10,6 +10,10 @@ secretfile='search.secret'
 api = SearchAPI.new
 api.get_keys(secretfile)
 
+# Test authentication, optionally
+#
+api.test_auth()
+
 #Pass OCLC numbers to get current OCLC numbers
 #
 recnum = '46394151'

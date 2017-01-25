@@ -9,7 +9,8 @@ class SearchSession
   end
 
   def make_request(oclcnum)
-    @url = 'http://www.worldcat.org/webservices/catalog/content/' + oclcnum + '?servicelevel=full&wskey=' + @wskey
+    @url = 'http://www.worldcat.org/webservices/catalog/content/' +
+           oclcnum + '?servicelevel=full&wskey=' + @wskey
     uri = URI.parse(@url)
     request = Net::HTTP::Get.new(uri.request_uri)
     http = Net::HTTP.new(uri.host, uri.port)
@@ -18,6 +19,19 @@ class SearchSession
       http.request(request)
     end
     return @response
+  end
+
+  def test_auth()
+    oclcnum = '46394151'
+    status = make_request(oclcnum).code
+    if status == '200'
+      puts 'Authentication successful.'
+      return true
+    else
+      puts 'Test authentication failed. Wrong credentials or ' +
+           'worldcat service down?'
+      return false
+    end
   end
   
 end
@@ -47,6 +61,12 @@ class SearchAPI
     _001 = /tag="001">([0-9]*)<\/controlfield/.match(@response.body)[1]
     return _001
   end
+  
+  def test_auth()
+    @session || create_session
+    @session.test_auth()
+  end
+  
 end
 #_001 = /tag="001">([0-9]*)<\/controlfield/.match(response.body)[1]
 #_019 = /019">\s*<subfield code="a">([0-9]*)</.match(response.body)[1]
