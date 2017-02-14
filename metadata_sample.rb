@@ -13,7 +13,8 @@ api.get_keys(secretfile)
 #
 api.test_auth()
 
-#Pass OCLC numbers to get a hash of the bib with marc tags as keys
+# Pass OCLC numbers to get a hash of the bib with marc tags as keys
+# and an array of marc fields as values
 #
 recnum = '46394151'
 api.read_bib(recnum)
