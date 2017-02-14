@@ -81,19 +81,18 @@ class MetadataAPI
     # record keys: fixedFields, variableFields, adminData
     fields={}
     record['fixedFields'].each do |field|
-    if fields.include?(field['tag'])
-      fields[field['tag']] << field
-    else
-      fields[field['tag']] = [field]
-    end
+      if fields.include?(field['tag'])
+        fields[field['tag']] << field
+      else
+        fields[field['tag']] = [field]
+      end
     end
     record['variableFields'].each do |field|
-    if fields.include?(field['tag'])
-      fields[field['tag']] << field
-    else
-      fields[field['tag']] = [field]
-    end
-    end
+      if fields.include?(field['tag'])
+        fields[field['tag']] << field
+      else
+        fields[field['tag']] = [field]
+      end
     end
     return fields
   end
