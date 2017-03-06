@@ -5,6 +5,7 @@ require 'nokogiri'
 
 
 #TODO get other valid http response codes
+#TODO probably not needed to keep a separate SearchSession class anymore
 
 @prod_secret = File.dirname(__FILE__).to_s + '/search.secret'
 

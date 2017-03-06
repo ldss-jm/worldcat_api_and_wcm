@@ -1,26 +1,28 @@
 load './metadata_api.rb'
 
-# Provide path to secret file
+# Make an instance of MetadataAPI and load secrets/keys in './metadata.secret'
+#
+api = MetadataAPI.new(@prod_secret)
+
+
+# Or, provide path to alternate secret file and create instance
 #
 secretfile = 'metadata.secret'
+api = MetadataAPI.new(secretfile)
 
-# Make an instance of MetadataAPI and load secrets/keys
-#
-api = MetadataAPI.new
-api.get_keys(secretfile)
 
 # Test authentication, optionally
 #
 api.test_auth()
 
-# Pass OCLC numbers to get a hash of the bib with marc tags as keys
-# and an array of marc fields as values
+# Read/retrieve a bib via OCLC number
 #
 recnum = '46394151'
-api.read_bib(recnum)
+# Retrieve bib from API and store it...  
+puts api.read_bib('46394151')
+# ...as a marc-ruby Record...
 puts api.bib
-puts api.bib['001']
-
-
-api.create_session
-api.do('https://worldcat.org/bib/data/46394151?classificationScheme=LibraryOfCongress&holdingLibraryCode=MAIN')
+puts api.bib['001'].value
+puts api.bib.fields('650')
+# ...and as marcxml
+puts api.bib.xml

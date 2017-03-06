@@ -15,7 +15,6 @@ load './search_api.rb'
 
 
 ##############################
-secretfile = 'search.secret'
 #Note: import utf-8 encoded files
 custom_file = 'discontinued_upennback_UTF-8.txt'
 stock_file = 'stock_upennback_UTF-8.txt'
@@ -85,9 +84,7 @@ if File.exists?(problemfile)
   File.delete(problemfile)
 end
 
-api = SearchAPI.new
-api.get_keys(secretfile)
-
+api = SearchAPI.new(@prod_secret)
 
 
 custom = tabdelim_to_hash(custom_file, matchpoint)

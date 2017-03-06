@@ -5,6 +5,11 @@ require 'nokogiri'
 require 'oclc/auth'
 #TODO: see if there's a better option than certified for SSL cert errors
 require 'certified'
+require 'marc'
+
+#TODO get other valid http response codes
+
+@prod_secret = File.dirname(__FILE__).to_s + '/metadata.secret'
 
 class AuthSession
 attr_reader :response
@@ -21,7 +26,7 @@ attr_reader :response
     @wskey = OCLC::Auth::WSKey.new(@key, @secret)
   end
     
-  def make_request(url)
+  def make_request(url, retry_on_error=true)
     make_wskey()
     @uri = URI.parse(url)
     request = Net::HTTP::Get.new(@uri.request_uri)
@@ -32,6 +37,12 @@ attr_reader :response
     http.use_ssl = true
     @response = http.start do |http| 
     http.request(request)
+    end
+    #TODO get other valid http response codes
+    if @response.code != '200' and retry_on_error
+      puts 'http error, retrying'
+      sleep(2)
+      make_request(url, retry_on_error=false)
     end
     return @response
   end
@@ -54,53 +65,48 @@ end
 class MetadataAPI
   attr_accessor :url
   attr_reader :response, :bib
-
-  def get_keys(filename)
-    @secrets = {}
-    lines = File.read(filename).split("\n")
-    lines.each { |line| @secrets[line.split(" = ")[0]] = line.split(" = ")[1].rstrip }
-    return @secrets
+  
+  def initialize(secretfile)
+    secrets = get_keys(secretfile)
+    @session = AuthSession.new(secrets)  
   end
 
-  def create_session(secrets=@secrets)
-    @session = AuthSession.new(secrets)
+  def get_keys(filename)
+    secrets = {}
+    lines = File.read(filename).split("\n")
+    lines.each { |line| secrets[line.split(" = ")[0]] = line.split(" = ")[1].rstrip }
+    return secrets
   end
 
   def read_bib(oclcnum, schema='LibraryOfCongress', holdingLibraryCode='MAIN')
     # TODO: no clue what holdingLibraryCode is for
     oclcnum = oclcnum.to_s
     @url = 'https://worldcat.org/bib/data/' + oclcnum + '?classificationScheme=' + schema + '&holdingLibraryCode=' + holdingLibraryCode
-    if not @session
-      create_session
-    end
     @response = @session.make_request(@url)
-    @bib = parse_bib(@response)
-  end
-
-  def parse_bib(response=@response)
-    doc = Nokogiri::XML(response.body)
-    record = JSON.parse(doc.xpath('//xmlns:content').text)['record']
-    # record keys: fixedFields, variableFields, adminData
-    fields={}
-    record['fixedFields'].each do |field|
-      if fields.include?(field['tag'])
-        fields[field['tag']] << field
-      else
-        fields[field['tag']] = [field]
-      end
+    if @response.code != '200'
+      return nil
     end
-    record['variableFields'].each do |field|
-      if fields.include?(field['tag'])
-        fields[field['tag']] << field
-      else
-        fields[field['tag']] = [field]
-      end
-    end
-    return fields
+    @bib = MARC::XMLReader.new(StringIO.new(@response.body)).first
+    @bib.xml=@response.body
+    return @bib    
   end
   
   def test_auth()
-    @session || create_session
     @session.test_auth()
+  end
+end
+
+class MARC::Record
+  attr_reader :xml, :elvl
+  
+  def xml=(xml_record)
+    @xml = xml_record
+  end
+  
+  def elvl()
+    mapping = {' ' => '0', 'I' => '0.I', '1' => '1', 'L' => '1.L', '2' => '2',
+               'M' => '2.M', '4' => '4', '8' => '8', 'K' => '8.K', '7' => '917',
+               '3' => '923', '5' => '935', 'J' => '94J'}
+    return mapping[leader[17]]
   end
 end
