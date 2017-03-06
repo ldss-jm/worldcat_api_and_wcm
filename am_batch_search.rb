@@ -13,7 +13,8 @@ File.open('am_batch_output.txt', 'a') {|f|
   ams.each do |am|
     i += 1
     puts i.to_s + " / " + ams.length.to_s
-    api.am_search(am)
+    #api.am_search(am)
+    api.am_search(am, limit=5)
     api.get_detailed_results
     if api.results.http_error
       # either the search results or the bib retrieval failed
@@ -21,14 +22,14 @@ File.open('am_batch_output.txt', 'a') {|f|
     elsif not api.results.full_records.empty? and api.results.best_english
       if api.results.best_english.length > 1
         # multiple best records, search again and require holding_libs >= 5
-        api.am_search(am, limit=5)
+        #api.am_search(am, limit=5)
+        api.am_search(am, limit=10)
         api.get_detailed_results
-        api.results.best_english.length
       end
-      if api.results.best_english.length > 1
-        # still multiple best records, stop trying
+      if not api.results.best_english or api.results.best_english.length > 1 or api.results.full_records.empty?
+        # still multiple best records, or no records, stop trying
         puts 'multiple'
-        f.write([am, 'multiple'].join("\t") + "\n")
+        f.write([am, 'multiple', api.results.ocns.join("; ")].join("\t") + "\n")
       else
         # one record found, write results
         puts 'found'
