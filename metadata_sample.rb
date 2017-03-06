@@ -4,7 +4,7 @@ load './metadata_api.rb'
 #
 secretfile = 'metadata.secret'
 
-# Make an instance of SearchAPI and load secrets/keys
+# Make an instance of MetadataAPI and load secrets/keys
 #
 api = MetadataAPI.new
 api.get_keys(secretfile)
@@ -20,3 +20,7 @@ recnum = '46394151'
 api.read_bib(recnum)
 puts api.bib
 puts api.bib['001']
+
+
+api.create_session
+api.do('https://worldcat.org/bib/data/46394151?classificationScheme=LibraryOfCongress&holdingLibraryCode=MAIN')

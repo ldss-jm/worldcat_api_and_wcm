@@ -25,6 +25,8 @@ attr_reader :response
     make_wskey()
     @uri = URI.parse(url)
     request = Net::HTTP::Get.new(@uri.request_uri)
+    # TODO: use this accept as default, but allow other accepts
+    request['accept'] = 'application/atom+xml;content="application/vnd.oclc.marc21+xml"'
     request['Authorization'] = @wskey.hmac_signature('GET', url, :principal_id => @principalid, :principal_idns => @principaldns)
     http = Net::HTTP.new(@uri.host, @uri.port)
     http.use_ssl = true
