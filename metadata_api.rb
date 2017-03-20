@@ -7,7 +7,7 @@ require 'oclc/auth'
 require 'certified'
 require 'marc'
 
-#TODO get other valid http response codes
+#TODO get and allow other valid http response codes
 
 @prod_secret = File.dirname(__FILE__).to_s + '/metadata.secret'
 
@@ -38,7 +38,7 @@ attr_reader :response
     @response = http.start do |http| 
     http.request(request)
     end
-    #TODO get other valid http response codes
+    #TODO get and allow other valid http response codes
     if @response.code != '200' and retry_on_error
       puts 'http error, retrying'
       sleep(2)
@@ -79,7 +79,7 @@ class MetadataAPI
   end
 
   def read_bib(oclcnum, schema='LibraryOfCongress', holdingLibraryCode='MAIN')
-    # TODO: no clue what holdingLibraryCode is for
+    # TODO: no clue what holdingLibraryCode is for; i think it has no meaning when this API used in a read-only context
     oclcnum = oclcnum.to_s
     @url = 'https://worldcat.org/bib/data/' + oclcnum + '?classificationScheme=' + schema + '&holdingLibraryCode=' + holdingLibraryCode
     @response = @session.make_request(@url)

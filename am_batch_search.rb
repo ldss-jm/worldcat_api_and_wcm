@@ -13,7 +13,6 @@ File.open('am_batch_output.txt', 'a') {|f|
   ams.each do |am|
     i += 1
     puts i.to_s + " / " + ams.length.to_s
-    #api.am_search(am)
     api.am_search(am, limit=5)
     api.get_detailed_results
     if api.results.http_error
@@ -21,8 +20,7 @@ File.open('am_batch_output.txt', 'a') {|f|
       f.write([am, 'http error'].join("\t") + "\n")
     elsif not api.results.full_records.empty? and api.results.best_english
       if api.results.best_english.length > 1
-        # multiple best records, search again and require holding_libs >= 5
-        #api.am_search(am, limit=5)
+        # multiple best records, search again and require holding_libs >= 10
         api.am_search(am, limit=10)
         api.get_detailed_results
       end

@@ -4,7 +4,7 @@ require 'marc'
 require 'nokogiri'
 
 
-#TODO get other valid http response codes
+#TODO get and allow other valid http response codes
 #TODO probably not needed to keep a separate SearchSession class anymore
 
 @prod_secret = File.dirname(__FILE__).to_s + '/search.secret'
@@ -20,7 +20,7 @@ class SearchSession
     @response = http.start do |http| 
       http.request(request)
     end
-    #TODO get other valid http response codes
+    #TODO get and allow other valid http response codes
     if @response.code != '200' and retry_on_error
       puts 'http error, retrying'
       sleep(2)
@@ -137,7 +137,7 @@ class SearchResults
   def best_english()
     english = []
     @full_records.each do |record|
-      if record['040']['b'] == 'eng'
+      if record['040']['b'] == 'eng' and record['040']['a'] != 'OTZ'
     english << record
       end
     end
