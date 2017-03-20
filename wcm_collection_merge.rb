@@ -9,6 +9,9 @@
 #only in custom - discard
 
 
+# TODO: only report OCN corrections, do not send an entire, correct kbart to OCLC
+# (including items that do not need correction)
+#
 
 require 'csv'
 load './search_api.rb'
